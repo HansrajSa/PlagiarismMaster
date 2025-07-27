@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlagiarismMaster - AI-Powered Plagiarism Checker & Fixer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- AdSense Script -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXXX"
+     crossorigin="anonymous"></script>
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+        }
+        .loader {
+            border-top-color: #4f46e5;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @-webkit-keyframes spinner {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .login-modal {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .custom-transition {
+            transition: all 0.3s ease-in-out;
+        }
+        .hover-scale:hover {
+            transform: scale(1.03);
+        }
+        .ad-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-fingerprint text-indigo-600 text-3xl mr-2"></i>
+                        <span class="font-bold text-xl text-gray-900">PlagiarismMaster</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div id="user-section" class="hidden">
+                        <div class="flex items-center space-x-3">
+                            <span id="points-display" class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm font-medium">
+                                Points: <span id="user-points">0</span>
+                            </span>
+                            <div class="relative" id="profile-dropdown">
+                                <div class="flex items-center space-x-2 cursor-pointer" id="profile-button">
+                                    <img id="user-avatar" class="h-8 w-8 rounded-full object-cover" src="" alt="User avatar">
+                                    <span id="user-name" class="text-sm font-medium text-gray-700 hidden md:block"></span>
+                                    <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                                </div>
+                                <div id="dropdown-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden">
+                                    <a href="#" id="logout-button" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Sign out
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="login-button" class="ml-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+                        Sign in
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Hero Section -->
+        <section class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+                AI-Powered Plagiarism Checker & Fixer
+            </h1>
+            <p class="mt-3 max-w-2xl mx-auto text-xl text-gray-500 sm:mt-4">
+                Ensure your content is 100% original with our advanced AI technology
+            </p>
+        </section>
+
+        <!-- AdSense Banner Ad -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+                 data-ad-slot="XXXXXXXXXX"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <!-- Input Section -->
+        <section class="mb-8">
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Check your content</h2>
+                    <div class="mb-4">
+                        <textarea id="input-text" class="w-full h-64 p-4 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500" placeholder="Paste your text here (up to 1000 words)..."></textarea>
+                    </div>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div>
+                            <span id="word-counter" class="text-sm text-gray-500">0 words</span>
+                            <span class="text-sm text-gray-500 ml-2">|</span>
+                            <span id="points-required" class="text-sm text-gray-500 ml-2">Required: 0 points</span>
+                        </div>
+                        <div class="mt-3 sm:mt-0">
+                            <button id="clear-button" class="mr-2 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+                                Clear
+                            </button>
+                            <button id="check-button" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+                                Check & Fix Plagiarism
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="results-section" class="mb-12 hidden">
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="p-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Results</h2>
+                    
+                    <!-- Loading State -->
+                    <div id="loading-state" class="hidden">
+                        <div class="flex flex-col items-center justify-center py-12">
+                            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
+                            <h2 class="text-center text-gray-600 text-xl font-semibold">Analyzing your content...</h2>
+                            <p class="text-center text-gray-500">This may take up to 30 seconds</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <div id="empty-state" class="flex flex-col items-center justify-center py-12">
+                        <div class="text-indigo-400 mb-4">
+                            <i class="fas fa-file-search text-5xl"></i>
+                        </div>
+                        <h2 class="text-center text-gray-600 text-xl font-semibold">No content analyzed yet</h2>
+                        <p class="text-center text-gray-500">Paste your text and click "Check & Fix Plagiarism"</p>
+                    </div>
+                    
+                    <!-- Results Content -->
+                    <div id="results-content" class="hidden">
+                        <!-- Tabs Navigation -->
+                        <div class="border-b border-gray-200">
+                            <nav class="-mb-px flex space-x-8">
+                                <a href="#" id="analysis-tab" class="tab-button border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="analysis-content">
+                                    Plagiarism Analysis
+                                </a>
+                                <a href="#" id="fixed-tab" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm" data-tab="fixed-content">
+                                    Fixed Content
+                                </a>
+                            </nav>
+                        </div>
+                        
+                        <!-- Tab Contents -->
+                        <div class="py-4">
+                            <div id="analysis-content" class="tab-content active">
+                                <div id="analysis-result" class="prose max-w-none">
+                                    <!-- Analysis content will be inserted here -->
+                                </div>
+                            </div>
+                            <div id="fixed-content" class="tab-content">
+                                <div id="fixed-result" class="prose max-w-none mb-4">
+                                    <!-- Fixed content will be inserted here -->
+                                </div>
+                                <button id="copy-button" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+                                    <i class="fas fa-copy mr-2"></i>Copy Fixed Text
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AdSense Rectangle Ad -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+                 data-ad-slot="XXXXXXXXXX"
+                 data-ad-format="rectangle"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
+        <!-- Pricing Section -->
+        <section id="pricing-section" class="my-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-gray-900">Pricing Plans</h2>
+                <p class="mt-3 max-w-2xl mx-auto text-xl text-gray-500">
+                    Watch ads to earn points and check more content
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Bronze Plan -->
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden hover-scale custom-transition">
+                    <div class="px-6 py-8">
+                        <h3 class="text-center text-2xl font-medium text-gray-900">Bronze</h3>
+                        <div class="mt-4 flex justify-center">
+                            <span class="text-5xl font-extrabold">250</span>
+                        </div>
+                        <p class="mt-4 text-center text-gray-500">Get started with basic plagiarism checking</p>
+                        <div class="mt-6">
+                            <ul class="space-y-4">
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>250 points</span>
+                                </li>
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Check up to 1</span>
+                                </li>
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Points never expire</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button class="watch-ad-button mt-8 w-full bg-indigo-600 border border-transparent rounded-md py-3 px-8 font-medium text-white hover:bg-indigo-700" data-points="250">
+                            <i class="fas fa-play mr-2"></i>Watch Ad to Earn Points
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Plus Plan -->
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden border-2 border-indigo-500 hover-scale custom-transition">
+                    <div class="bg-indigo-500 text-white text-center py-2">
+                        <span class="text-sm font-medium">FREE Just Click And Get</span>
+                    </div>
+                    <div class="px-6 py-8">
+                        <h3 class="text-center text-2xl font-medium text-gray-900">Plus</h3>
+                        <div class="mt-4 flex justify-center">
+                            <span class="text-5xl font-extrabold">750</span>
+                        </div>
+                        <p class="mt-4 text-center text-gray-500">Perfect for students and professionals</p>
+                        <div class="mt-6">
+                            <ul class="space-y-4">
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>750 points</span>
+                                </li>
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Check up to 2-3 documents</span>
+                                </li>
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Points never expire</span>
+                                </li>
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Priority processing</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button class="watch-ad-button mt-8 w-full bg-indigo-600 border border-transparent rounded-md py-3 px-8 font-medium text-white hover:bg-indigo-700" data-points="750">
+                            <i class="fas fa-play mr-2"></i>Watch Ad to Earn Points
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gold Plan -->
+                <div class="bg-white shadow-lg rounded-lg overflow-hidden hover-scale custom-transition">
+                    <div class="px-6 py-8">
+                        <h3 class="text-center text-2xl font-medium text-gray-900">Gold</h3>
+                        <div class="mt-4 flex justify-center">
+                            <span class="text-5xl font-extrabold">1800</span>
+                        </div>
+                        <p class="mt-4 text-center text-gray-500">For power users and teams</p>
+                        <div class="mt-6">
+                            <ul class="space-y-4">
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>1800 points</span>
+                                </li>
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Check up to 5-8 documents</span>
+                                </li>
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Points never expire</span>
+                                </li>
+                                <li class="flex">
+                                    <i class="fas fa-check text-green-500 mr-2 mt-1"></i>
+                                    <span>Priority processing</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button class="watch-ad-button mt-8 w-full bg-indigo-600 border border-transparent rounded-md py-3 px-8 font-medium text-white hover:bg-indigo-700" data-points="1800">
+                            <i class="fas fa-play mr-2"></i>Watch Ad to Earn Points
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="my-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-extrabold text-gray-900">How It Works</h2>
+                <p class="mt-3 max-w-2xl mx-auto text-xl text-gray-500">
+                    Our AI-powered system delivers high-quality results in seconds
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="h-12 w-12 flex items-center justify-center rounded-md bg-indigo-500 text-white mb-4">
+                        <i class="fas fa-paste text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">1. Paste Your Content</h3>
+                    <p class="text-gray-500">Simply paste your text (up to 500 words) into the text area.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="h-12 w-12 flex items-center justify-center rounded-md bg-indigo-500 text-white mb-4">
+                        <i class="fas fa-search text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">2. AI Analysis</h3>
+                    <p class="text-gray-500">Our advanced AI analyzes your text for potential plagiarism issues.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="h-12 w-12 flex items-center justify-center rounded-md bg-indigo-500 text-white mb-4">
+                        <i class="fas fa-pen-fancy text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">3. Get Fixed Content</h3>
+                    <p class="text-gray-500">Receive a rewritten version that maintains your meaning but ensures originality.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- AdSense Leaderboard Ad -->
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+                 data-ad-slot="XXXXXXXXXX"
+                 data-ad-format="leaderboard"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center">
+                        <i class="fas fa-fingerprint text-indigo-400 text-3xl mr-2"></i>
+                        <span class="font-bold text-xl">PlagiarismMaster</span>
+                    </div>
+                    <p class="mt-2 text-gray-400">
+                        Advanced AI-powered plagiarism detection and content fixing.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="#pricing-section" class="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
+                        <li><a href="https://plagiarismmasterai.blogspot.com/2025/07/terms-privacy.html" class="text-gray-400 hover:text-white transition-colors">Terms of Service</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+                    <p class="text-gray-400 mb-2">
+                        <i class="fas fa-envelope mr-2"></i> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c6b5b3b6b6a9b4b286b6aaa7a1afa7b4afb5ababa7b5b2a3b4e8a5a9ab">realmoneyforqx@gmail.com</a>
+                    </p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-700 text-gray-400 text-sm text-center">
+                &copy; 2023 PlagiarismMaster. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 flex items-center justify-center z-50 login-modal hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-medium text-gray-900">Sign in to your account</h3>
+                <button id="close-modal" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="mt-4">
+                <button id="google-signin" class="w-full flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+                    <img src="https://www.google.com/favicon.ico" alt="Google" class="h-5 w-5 mr-2">
+                    Sign in with Google
+                </button>
+            </div>
+            <div class="mt-6">
+                <p class="text-center text-sm text-gray-500">
+                    By signing in, you agree to our 
+                    <a href="#" class="text-indigo-600 hover:text-indigo-500">Terms of Service</a>
+                    and 
+                    <a href="https://plagiarismmasterai.blogspot.com/2025/07/privacy-policy.html" class="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- AdSense Rewarded Ad Modal -->
+    <div id="ad-modal" class="fixed inset-0 flex items-center justify-center z-50 login-modal hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-medium text-gray-900">Watch Ad to Earn Points</h3>
+                <button id="close-ad-modal" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="text-center mb-6">
+                <div class="text-indigo-400 mb-4">
+                    <i class="fas fa-play-circle text-6xl"></i>
+                </div>
+                <p id="ad-points-text" class="text-gray-700 mb-4">Watch a short ad to earn points!</p>
+                <div id="ad-container-rewarded" class="mb-4">
+                    <!-- AdSense Rewarded Ad will be loaded here -->
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+                         data-ad-slot="XXXXXXXXXX"
+                         data-ad-format="rewarded"></ins>
+                </div>
+                <button id="show-rewarded-ad" class="w-full bg-indigo-600 border border-transparent rounded-md py-3 px-8 font-medium text-white hover:bg-indigo-700">
+                    <i class="fas fa-play mr-2"></i>Start Ad
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAqkiNTcoImYaEe2aDPsy9AtwiNYNT_l08",
+            authDomain: "plagiarism-82f11.firebaseapp.com",
+            projectId: "plagiarism-82f11",
+            storageBucket: "plagiarism-82f11.firebasestorage.app",
+            messagingSenderId: "875127189882",
+            appId: "1:875127189882:web:08ac60e29d35ac07ae26c3",
+            measurementId: "G-BBHK6JTCYP"
+        };
+
+        // OpenRouter API Key (in a production environment, this should be kept server-side)
+        const OPENROUTER_API_KEY = "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";
+        const SITE_URL = window.location.origin;
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // DOM Elements
+        const loginButton = document.getElementById('login-button');
+        const loginModal = document.getElementById('login-modal');
+        const closeModal = document.getElementById('close-modal');
+        const googleSignin = document.getElementById('google-signin');
+        const userSection = document.getElementById('user-section');
+        const userAvatar = document.getElementById('user-avatar');
+        const userName = document.getElementById('user-name');
+        const userPoints = document.getElementById('user-points');
+        const profileButton = document.getElementById('profile-button');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const logoutButton = document.getElementById('logout-button');
+        const inputText = document.getElementById('input-text');
+        const wordCounter = document.getElementById('word-counter');
+        const pointsRequired = document.getElementById('points-required');
+        const clearButton = document.getElementById('clear-button');
+        const checkButton = document.getElementById('check-button');
+        const resultsSection = document.getElementById('results-section');
+        const loadingState = document.getElementById('loading-state');
+        const emptyState = document.getElementById('empty-state');
+        const resultsContent = document.getElementById('results-content');
+        const analysisResult = document.getElementById('analysis-result');
+        const fixedResult = document.getElementById('fixed-result');
+        const copyButton = document.getElementById('copy-button');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const adModal = document.getElementById('ad-modal');
+        const closeAdModal = document.getElementById('close-ad-modal');
+        const adPointsText = document.getElementById('ad-points-text');
+        const showRewardedAd = document.getElementById('show-rewarded-ad');
+        const watchAdButtons = document.querySelectorAll('.watch-ad-button');
+        
+        // Global Variables
+        let currentUser = null;
+        let currentUserData = null;
+        let selectedAdPoints = null;
+        let rewardedAd = null;
+        
+        // Initialize AdSense Rewarded Ads
+        function initializeRewardedAds() {
+            if (typeof adsbygoogle !== 'undefined') {
+                // Initialize rewarded ad
+                rewardedAd = new adsbygoogle.RewardedAd({
+                    adUnitId: 'ca-pub-XXXXXXXXXXXXXXXXX/XXXXXXXXXX' // Replace with your rewarded ad unit ID
+                });
+                
+                rewardedAd.load().then(() => {
+                    console.log('Rewarded ad loaded successfully');
+                }).catch((error) => {
+                    console.error('Failed to load rewarded ad:', error);
+                });
+            }
+        }
+        
+        // Auth State Observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                loginButton.classList.add('hidden');
+                userSection.classList.remove('hidden');
+                
+                // Set user info
+                userAvatar.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.displayName || 'User');
+                userName.textContent = user.displayName || 'User';
+                
+                // Get user data from Firestore
+                getUserData();
+            } else {
+                currentUser = null;
+                loginButton.classList.remove('hidden');
+                userSection.classList.add('hidden');
+            }
+        });
+        
+        // Get user data from Firestore
+        function getUserData() {
+            if (!currentUser) return;
+            
+            db.collection('users').doc(currentUser.uid).get().then((doc) => {
+                if (doc.exists) {
+                    currentUserData = doc.data();
+                    userPoints.textContent = currentUserData.points || 0;
+                } else {
+                    // New user, create profile with welcome bonus
+                    const userData = {
+                        name: currentUser.displayName || 'User',
+                        email: currentUser.email,
+                        points: 100, // Welcome bonus
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    
+                    db.collection('users').doc(currentUser.uid).set(userData).then(() => {
+                        currentUserData = userData;
+                        userPoints.textContent = userData.points;
+                    });
+                }
+            }).catch(error => {
+                console.error("Error getting user data:", error);
+            });
+        }
+        
+        // Word Count and Points Required Calculation
+        inputText.addEventListener('input', () => {
+            const text = inputText.value.trim();
+            const wordCount = text ? text.split(/\s+/).length : 0;
+            wordCounter.textContent = `${wordCount} words`;
+            
+            // Calculate required points
+            let points = 0;
+            if (wordCount > 0 && wordCount <= 450) {
+                points = 170;
+            } else if (wordCount > 200 && wordCount <= 451) {
+                points = 300;
+            } else if (wordCount > 500) {
+                points = 100;
+            }
+            
+            pointsRequired.textContent = `Required: ${points} points`;
+        });
+        
+        // Clear Button
+        clearButton.addEventListener('click', () => {
+            inputText.value = '';
+            wordCounter.textContent = '0 words';
+            pointsRequired.textContent = 'Required: 0 points';
+        });
+        
+        // Login Modal
+        loginButton.addEventListener('click', () => {
+            loginModal.classList.remove('hidden');
+        });
+        
+        closeModal.addEventListener('click', () => {
+            loginModal.classList.add('hidden');
+        });
+        
+        // Google Sign In
+        googleSignin.addEventListener('click', () => {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).then(() => {
+                loginModal.classList.add('hidden');
+            }).catch(error => {
+                console.error("Error during sign in:", error);
+                alert("Sign in failed. Please try again.");
+            });
+        });
+        
+        // Profile Dropdown
+        profileButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!profileButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+        
+        // Logout
+        logoutButton.addEventListener('click', () => {
+            auth.signOut().then(() => {
+                dropdownMenu.classList.add('hidden');
+            }).catch(error => {
+                console.error("Error during sign out:", error);
+            });
+        });
+        
+        // Tab Navigation
+        tabButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all tabs
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('border-indigo-500', 'text-indigo-600');
+                    btn.classList.add('border-transparent', 'text-gray-500');
+                });
+                
+                // Add active class to clicked tab
+                button.classList.remove('border-transparent', 'text-gray-500');
+                button.classList.add('border-indigo-500', 'text-indigo-600');
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show selected tab content
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Copy Button
+        copyButton.addEventListener('click', () => {
+            const fixedText = fixedResult.innerText;
+            navigator.clipboard.writeText(fixedText).then(() => {
+                copyButton.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+                setTimeout(() => {
+                    copyButton.innerHTML = '<i class="fas fa-copy mr-2"></i>Copy Fixed Text';
+                }, 2000);
+            });
+        });
+        
+        // Check & Fix Plagiarism Button
+        checkButton.addEventListener('click', async () => {
+            const text = inputText.value.trim();
+            
+            // Validate input
+            if (!text) {
+                alert('Please enter some text to check.');
+                return;
+            }
+            
+            const wordCount = text.split(/\s+/).length;
+            if (wordCount > 1000) {
+                alert('Text exceeds 1000 words limit. Please reduce the content.');
+                return;
+            }
+            
+            // Check if user is authenticated
+            if (!currentUser) {
+                loginModal.classList.remove('hidden');
+                return;
+            }
+            
+            // Calculate required points
+            let requiredPoints = 0;
+            if (wordCount <= 200) {
+                requiredPoints = 170;
+            } else {
+                requiredPoints = 300;
+            }
+            
+            // Check if user has enough points
+            if (!currentUserData || currentUserData.points < requiredPoints) {
+                alert(`You don't have enough points. Required: ${requiredPoints} points. Watch ads to earn more points!`);
+                return;
+            }
+            
+            // Show results section and loading state
+            resultsSection.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+            resultsContent.classList.add('hidden');
+            
+            try {
+                // Call OpenRouter API
+                const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                        "HTTP-Referer": SITE_URL,
+                        "X-Title": "Plagiarism Checker and Fixer",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        "model": "deepseek/deepseek-r1:free",
+                        "messages": [
+                            {
+                                "role": "system",
+                                "content": "You are an advanced plagiarism checker and fixer. First, analyze the provided text for potential plagiarism issues. Then, create a completely rewritten version that maintains the original meaning but uses different wording to avoid plagiarism. Provide your response in two parts: 1) Plagiarism Analysis, and 2) Fixed Content."
+                            },
+                            {
+                                "role": "user",
+                                "content": text
+                            }
+                        ]
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message || 'Failed to check plagiarism');
+                }
+                
+                // Process the response
+                const aiResponse = data.choices[0].message.content;
+                
+                // Split the response into Analysis and Fixed Content parts
+                let analysisContent, fixedContent;
+                
+                if (aiResponse.includes("Plagiarism Analysis:")) {
+                    const parts = aiResponse.split(/(Plagiarism Analysis:|Fixed Content:)/g);
+                    // Find the index of each part
+                    const analysisIdx = parts.indexOf("Plagiarism Analysis:");
+                    const fixedIdx = parts.indexOf("Fixed Content:");
+                    
+                    if (analysisIdx !== -1 && fixedIdx !== -1) {
+                        analysisContent = parts[analysisIdx + 1].trim();
+                        fixedContent = parts[fixedIdx + 1].trim();
+                    } else {
+                        // Fallback if specific headers aren't found
+                        const midpoint = Math.floor(aiResponse.length / 2);
+                        analysisContent = aiResponse.substring(0, midpoint);
+                        fixedContent = aiResponse.substring(midpoint);
+                    }
+                } else {
+                    // If the AI doesn't use the expected format, make a best guess
+                    const sentences = aiResponse.split('.');
+                    const midpoint = Math.floor(sentences.length / 2);
+                    
+                    analysisContent = sentences.slice(0, midpoint).join('.') + '.';
+                    fixedContent = sentences.slice(midpoint).join('.').trim();
+                    
+                    // If we still don't have a good split, just use the whole text for both
+                    if (!fixedContent) {
+                        analysisContent = aiResponse;
+                        fixedContent = aiResponse;
+                    }
+                }
+                
+                // Update UI with results
+                analysisResult.innerHTML = analysisContent.replace(/\n/g, '<br>');
+                fixedResult.innerHTML = fixedContent.replace(/\n/g, '<br>');
+                
+                // Hide loading state and show results
+                loadingState.classList.add('hidden');
+                resultsContent.classList.remove('hidden');
+                
+                // Deduct points from user
+                await db.collection('users').doc(currentUser.uid).update({
+                    points: firebase.firestore.FieldValue.increment(-requiredPoints)
+                });
+                
+                // Update local user data
+                currentUserData.points -= requiredPoints;
+                userPoints.textContent = currentUserData.points;
+                
+                // Log usage
+                await db.collection('usage').add({
+                    userId: currentUser.uid,
+                    wordCount: wordCount,
+                    pointsUsed: requiredPoints,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+            } catch (error) {
+                console.error("Error checking plagiarism:", error);
+                
+                loadingState.classList.add('hidden');
+                resultsContent.classList.remove('hidden');
+                
+                analysisResult.innerHTML = `<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    Error: ${error.message || 'Failed to check plagiarism. Please try again.'}
+                </div>`;
+                fixedResult.innerHTML = '';
+            }
+        });
+        
+        // Watch Ad Buttons
+        watchAdButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (!currentUser) {
+                    loginModal.classList.remove('hidden');
+                    return;
+                }
+                
+                const points = parseInt(button.getAttribute('data-points'));
+                selectedAdPoints = points;
+                
+                adPointsText.textContent = `Watch a short ad to earn ${points} points!`;
+                adModal.classList.remove('hidden');
+            });
+        });
+        
+        // Close Ad Modal
+        closeAdModal.addEventListener('click', () => {
+            adModal.classList.add('hidden');
+            selectedAdPoints = null;
+        });
+        
+        // Show Rewarded Ad
+        showRewardedAd.addEventListener('click', () => {
+            if (rewardedAd) {
+                rewardedAd.show().then(() => {
+                    // Ad shown successfully
+                    console.log('Rewarded ad shown');
+                }).catch((error) => {
+                    console.error('Failed to show rewarded ad:', error);
+                    // Fallback: simulate ad completion for demo
+                    handleAdReward();
+                });
+            } else {
+                // Fallback: simulate ad completion for demo
+                setTimeout(() => {
+                    handleAdReward();
+                }, 3000); // Simulate 3 second ad
+                
+                showRewardedAd.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Playing Ad...';
+                showRewardedAd.disabled = true;
+            }
+        });
+        
+        // Handle Ad Reward
+        function handleAdReward() {
+            if (!selectedAdPoints || !currentUser) return;
+            
+            // Update user points in Firestore
+            db.collection('users').doc(currentUser.uid).update({
+                points: firebase.firestore.FieldValue.increment(selectedAdPoints)
+            }).then(() => {
+                // Update local user data
+                currentUserData.points += selectedAdPoints;
+                userPoints.textContent = currentUserData.points;
+                
+                // Log ad reward
+                return db.collection('ad_rewards').add({
+                    userId: currentUser.uid,
+                    points: selectedAdPoints,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }).then(() => {
+                alert(`Success! ${selectedAdPoints} points have been added to your account.`);
+                adModal.classList.add('hidden');
+                selectedAdPoints = null;
+                
+                // Reset button
+                showRewardedAd.innerHTML = '<i class="fas fa-play mr-2"></i>Start Ad';
+                showRewardedAd.disabled = false;
+            }).catch(error => {
+                console.error("Error updating points:", error);
+                alert("Ad was completed but there was an error updating your points. Please contact support.");
+            });
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeRewardedAds();
+        });
+    </script>
+</body>
+</html>
+
